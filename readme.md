@@ -21,9 +21,9 @@ Set XML = XMLConverter.ParseXML( _
   "</messages>" _
 )
 
-' XML("nodeName") -> messages
-' XML("childNodes")(1)("attributes")("id") -> 1
-' XML("childNodes")(1)("childNodes")(2)("text") -> "Howdy!"
+Debug.Print XML("nodeName") ' -> messages
+Debug.Print XML("childNodes")(1)("attributes")("id") ' -> 1
+Debug.Print XML("childNodes")(1)("childNodes")(2)("text") ' -> "Howdy!"
 
 Debug.Print XMLConverter.ConvertToXML(XML)
 ' -> "<?xml version="1.0"?><messages>...</messages>"
