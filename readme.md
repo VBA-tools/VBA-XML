@@ -25,10 +25,6 @@ Set XML = XMLConverter.ParseXML( _
 ' XML("childNodes")(1)("attributes")("id") -> 1
 ' XML("childNodes")(1)("childNodes")(2)("text") -> "Howdy!"
 
-Dim SearchResults As Collection
-Set SearchResults = XMLConverter.QueryByXPath(XML, "/messages/message[1]/body")
-' SearchResults(1)("text") -> "Howdy!"
-
 Debug.Print XMLConverter.ConvertToXML(XML)
 ' -> "<?xml version="1.0"?><messages>...</messages>"
 ```
