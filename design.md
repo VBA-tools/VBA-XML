@@ -6,11 +6,12 @@
 
 # Parsing Components
 
-1. "prolog": <? ... ?>
-2. "doctype": <!doctype ... [...]>
-3. "documentElement": Root element
+1. prolog: `<? ... ?>`
+2. doctype: `<!doctype ... [...]>`
+3. documentElement: Root element
 4. Element: 
 
+```
 #document (Element)
   prolog: (Element)
   doctype: (Element)
@@ -23,6 +24,7 @@
   attributes: (empty)
   text: ""
   xml: "..."
+```
 
 # Element
 
@@ -61,6 +63,8 @@ Otherwise:
   Look for ... -> text
   Look for immediate </ -> close element
 ```
+
+TODO Handle comments
 
 `parseAttribute -> Array(Key, Value)`
 
