@@ -1,5 +1,7 @@
 # VBA-XMLConverter
 
+__Status__: _Incomplete, Under Development_
+
 XML conversion and parsing for VBA (Excel, Access, and other Office applications).
 
 Tested in Windows Excel 2013 and Excel for Mac 2011, but should apply to 2007+. 
