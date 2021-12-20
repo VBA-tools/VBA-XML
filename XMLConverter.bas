@@ -490,76 +490,64 @@ End Function
 Private Function xml_ParseAttributes(xml_String As String, ByRef xml_Index As Long) As Collection
     Dim xml_Char As String
     Dim xml_StartIndex As Long
-    Dim xml_StringLength As Long
     Dim xml_Quote As String
-    Dim xml_Attributes As Collection
-    Dim xml_Attribute As Dictionary
     Dim xml_Name As String
-    Dim xml_Value As String
     
-    Set xml_Attributes = New Collection
+    Set xml_ParseAttributes = New Collection
     xml_SkipSpaces xml_String, xml_Index
     xml_StartIndex = xml_Index
-    xml_StringLength = Len(xml_String)
     
-    Do
+    Do While xml_Index > 0 And xml_Index <= VBA.Len(xml_String)
         xml_Char = VBA.Mid$(xml_String, xml_Index, 1)
         
         Select Case xml_Char
         Case "="
-            ' Found end of attribute name
-            ' Extract name, skip =, reset start index, and check for quote
-            xml_Name = VBA.Mid$(xml_String, xml_StartIndex, xml_Index - xml_StartIndex)
-            
-            xml_Index = xml_Index + 1
-            
-            ' Check quote style of attribute value
-            xml_Char = VBA.Mid$(xml_String, xml_Index, 1)
-            If xml_Char = """" Or xml_Char = "'" Then
-                xml_Quote = xml_Char
+            If xml_Name = vbNullString Then
+                ' Found end of attribute name
+                ' Extract name, skip '=', find quote char, reset start index
+                xml_Name = VBA.Mid$(xml_String, xml_StartIndex, xml_Index - xml_StartIndex)
+                xml_Index = xml_Index + 1
+                xml_Quote = VBA.Mid$(xml_String, xml_Index, 1)
+                xml_Index = xml_Index + 1
+                xml_StartIndex = xml_Index
+                
+                ' Check for valid quote style of attribute value
+                If Not xml_Quote = """" And Not xml_Quote = "'" Then
+                    ' Invalid Attribute quote.
+                    Err.Raise 10101, "XMLConverter", xml_ParseErrorMessage(xml_String, xml_Index, "Expecting ''' or '""'")
+                End If
+            Else
+                ' '=' exists within attribute value. Continue.
                 xml_Index = xml_Index + 1
             End If
+        Case xml_Quote
+            ' Found end of attribute value
+            ' Store name, value as new attribute.
+            With xml_ParseAttributes
+                .Add New Dictionary
+                .Item(.Count).Add "name", xml_Name
+                .Item(.Count).Add "value", VBA.Mid$(xml_String, xml_StartIndex, xml_Index - xml_StartIndex)
+            End With
             
+            ' Reset variables.
+            xml_Name = vbNullString
+            xml_Quote = vbNullString
+            
+            ' Increment.
+            xml_Index = xml_Index + 1
+            xml_SkipSpaces xml_String, xml_Index
             xml_StartIndex = xml_Index
-        Case xml_Quote, " ", ">", "/"
-            If xml_Char = "/" And VBA.Mid$(xml_String, xml_Index, 2) <> "/>" Then
-                ' It's just a simple escape
-                xml_Index = xml_Index + 1
-            Else
-                If Not xml_Name = vbNullString Then
-                    ' Attribute name was stored, end of attribute value
-                    xml_Value = VBA.Mid$(xml_String, xml_StartIndex, xml_Index - xml_StartIndex)
-                    
-                    ' Store name, value
-                    Set xml_Attribute = New Dictionary
-                    xml_Attribute.Add "name", xml_Name
-                    xml_Attribute.Add "value", xml_Value
-                    xml_Attributes.Add xml_Attribute
-                    
-                    ' Reset variables.
-                    xml_Name = vbNullString
-                    xml_Value = vbNullString
-                    
-                    xml_Index = xml_Index + 1
-                    xml_SkipSpaces xml_String, xml_Index
-                    xml_StartIndex = xml_Index
-                End If
-                
-                If xml_Char = ">" Or xml_Char = "/" Then
-                    ' End of tag, exit.
-                    Exit Do
-                End If
+            
+            ' Check for end of tag.
+            If VBA.Mid$(xml_String, xml_Index, 1) = ">" Or VBA.Mid$(xml_String, xml_Index, 2) = "/>" Then
+                Exit Function ' End of tag, exit.
             End If
         Case Else
             xml_Index = xml_Index + 1
         End Select
-        
-        If xml_Index > xml_StringLength Then
-            Err.Raise 10101, "XMLConverter", xml_ParseErrorMessage(xml_String, xml_Index, "Expecting '>' or '/>'")
-        End If
     Loop
     
-    Set xml_ParseAttributes = xml_Attributes
+    Err.Raise 10101, "XMLConverter", xml_ParseErrorMessage(xml_String, xml_Index, "Expecting '>' or '/>'")
 End Function
 
 Private Function xml_ParseNode(xml_String As String, ByRef xml_Index As Long, Optional ByRef xml_Parent As Dictionary) As Dictionary
