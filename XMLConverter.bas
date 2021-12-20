@@ -45,6 +45,7 @@ Attribute VB_Name = "XMLConverter"
 ' @author: Andrew Pullon | andrew.pullon@pkfh.co.nz | andrewcpullon@gmail.com
 ' @license: MIT (http://www.opensource.org/licenses/mit-license.php
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
+Option Explicit
 
 ' === VBA-UTC Headers
 #If Mac Then
