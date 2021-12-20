@@ -219,7 +219,7 @@ End Function
 '
 ' @method ConvertToXml
 ' @param {Variant} XmlValue (Dictionary, Collection, or DOMDocument)
-' @param {Integer|String} Whitespace "Pretty" print xmlwith given number of spaces per indentation (Integer) or given string
+' @param {Integer|String} Whitespace "Pretty" print xml with given number of spaces per indentation (Integer) or given string
 ' @return {String}
 ''
 Public Function ConvertToXML(ByVal XmlValue As Variant, Optional ByVal Whitespace As Variant, Optional ByVal xml_CurrentIndentation As Long = 0) As String
@@ -1052,7 +1052,7 @@ End Function
 ' @return {Date} Local date
 ' @throws 10011 - UTC parsing error
 ''
-Public Function ParseUtc(utc_UtcDate As Date) As Date
+Private Function ParseUtc(utc_UtcDate As Date) As Date
     On Error GoTo utc_ErrorHandling
 
 #If Mac Then
@@ -1081,7 +1081,7 @@ End Function
 ' @return {Date} UTC date
 ' @throws 10012 - UTC conversion error
 ''
-Public Function ConvertToUtc(utc_LocalDate As Date) As Date
+Private Function ConvertToUtc(utc_LocalDate As Date) As Date
     On Error GoTo utc_ErrorHandling
 
 #If Mac Then
@@ -1110,7 +1110,7 @@ End Function
 ' @return {Date} Local date
 ' @throws 10013 - ISO 8601 parsing error
 ''
-Public Function ParseIso(utc_IsoString As String) As Date
+Private Function ParseIso(utc_IsoString As String) As Date
     On Error GoTo utc_ErrorHandling
 
     Dim utc_Parts() As String
@@ -1188,7 +1188,7 @@ End Function
 ' @return {Date} ISO 8601 string
 ' @throws 10014 - ISO 8601 conversion error
 ''
-Public Function ConvertToIso(utc_LocalDate As Date) As String
+Private Function ConvertToIso(utc_LocalDate As Date) As String
     On Error GoTo utc_ErrorHandling
 
     ConvertToIso = VBA.Format$(ConvertToUtc(utc_LocalDate), "yyyy-mm-ddTHH:mm:ss.000Z")
@@ -1207,7 +1207,7 @@ End Function
 ' @return {Date} Local date
 ' @throws 10015 - Unix parsing error
 ''
-Public Function ParseUnix(UnixDate As Long) As Date
+Private Function ParseUnix(UnixDate As Long) As Date
     On Error GoTo utc_ErrorHandling
     
     ParseUnix = ParseUtc(DateAdd("s", UnixDate, "1/1/1970 00:00:00"))
@@ -1226,7 +1226,7 @@ End Function
 ' @return {String} Unix timestamp
 ' @throws 10016 - Unix conversion error
 ''
-Public Function ConvertToUnix(LocalDate As Date) As Long
+Private Function ConvertToUnix(LocalDate As Date) As Long
     On Error GoTo utc_ErrorHandling
     
     ConvertToUnix = VBA.DateDiff("s", "1/1/1970", ConvertToUtc(LocalDate))
