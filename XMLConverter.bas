@@ -886,7 +886,7 @@ End Function
 ' @param {String} xml_Text | Text to parse.
 ' @return {Variant} Node Value
 ''
-Private Function xml_ParseValue(ByVal xml_Text As String) As Variant
+Private Function xml_ParseValue(xml_Text As String) As Variant
     If xml_Text = "true" Then
         xml_ParseValue = True
     ElseIf xml_Text = "false" Then
@@ -902,7 +902,7 @@ Private Function xml_ParseValue(ByVal xml_Text As String) As Variant
     End If
 End Function
 
-Private Function xml_ParseNumber(ByVal xml_Text As String) As Variant
+Private Function xml_ParseNumber(xml_Text As String) As Variant
     Dim xml_Index As Long
     Dim xml_Char As String
     Dim xml_Value As String
@@ -938,15 +938,20 @@ Private Function xml_ParseNumber(ByVal xml_Text As String) As Variant
     Loop
 End Function
 
-Private Function xml_IsVoidNode(ByVal xml_Node As Dictionary) As Boolean
-    If xml_Node.Exists("childNodes") Then
-        xml_IsVoidNode = VBA.IsNull(xml_Node.Item("nodeValue")) And xml_Node.Item("childNodes").Count = 0
-    Else
-        xml_IsVoidNode = VBA.IsNull(xml_Node.Item("nodeValue"))
-    End If
+Private Function xml_IsVoidNode(xml_Node As Variant) As Boolean
+    Select Case VBA.TypeName(xml_Node)
+    Case "Dictionary"
+        If xml_Node.Exists("childNodes") Then
+            xml_IsVoidNode = VBA.IsNull(xml_Node.Item("nodeValue")) And xml_Node.Item("childNodes").Count = 0
+        Else
+            xml_IsVoidNode = VBA.IsNull(xml_Node.Item("nodeValue"))
+        End If
+    Case "IXMLDOMElement"
+        xml_IsVoidNode = (xml_Node.ChildNodes.Length = 0 And xml_Node.Text = vbNullString)
+    End Select
 End Function
 
-Private Function xml_Encode(ByVal xml_Text As Variant) As String
+Private Function xml_Encode(xml_Text As Variant) As String
     ' Variables.
     Dim xml_Index As Long
     Dim xml_Char As String
@@ -991,14 +996,14 @@ Private Function xml_Encode(ByVal xml_Text As Variant) As String
     xml_Encode = xml_BufferToString(xml_buffer, xml_BufferPosition)
 End Function
 
-Private Sub xml_SkipSpaces(ByVal xml_String As String, ByRef xml_Index As Long)
+Private Sub xml_SkipSpaces(xml_String As String, ByRef xml_Index As Long)
     ' Increment index to skip over spaces
     Do While xml_Index > 0 And xml_Index <= VBA.Len(xml_String) And VBA.Mid$(xml_String, xml_Index, 1) = " "
         xml_Index = xml_Index + 1
     Loop
 End Sub
 
-Private Function xml_StringIsLargeNumber(ByVal xml_String As Variant) As Boolean
+Private Function xml_StringIsLargeNumber(xml_String As Variant) As Boolean
     ' Check if the given string is considered a "large number"
     ' (See xml_ParseNumber)
     
