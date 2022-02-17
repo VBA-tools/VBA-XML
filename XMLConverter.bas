@@ -262,9 +262,7 @@ Public Function ConvertToXML(ByVal XmlValue As Variant, Optional ByVal Whitespac
             If XmlValue.Item("nodeName") = "#document" Then
                 If Not XmlValue.Item("prolog") = vbNullString Then
                     xml_BufferAppend xml_buffer, XmlValue.Item("prolog"), xml_BufferPosition, xml_BufferLength
-                    If xml_PrettyPrint Then
-                        xml_BufferAppend xml_buffer, vbNewLine, xml_BufferPosition, xml_BufferLength
-                    End If
+					xml_BufferAppend xml_buffer, vbNewLine, xml_BufferPosition, xml_BufferLength  ' Always put prolog on its own line.
                 End If
                 xml_Converted = ConvertToXML(XmlValue.Item("childNodes"), Whitespace, xml_CurrentIndentation)
                 xml_BufferAppend xml_buffer, xml_Converted, xml_BufferPosition, xml_BufferLength
@@ -379,9 +377,7 @@ Public Function ConvertToXML(ByVal XmlValue As Variant, Optional ByVal Whitespac
             xml_BufferAppend xml_Buffer, "<?xml ", xml_BufferPosition, xml_BufferLength
             xml_BufferAppend xml_Buffer, XmlValue.Text, xml_BufferPosition, xml_BufferLength
             xml_BufferAppend xml_Buffer, "?>", xml_BufferPosition, xml_BufferLength
-            If xml_PrettyPrint Then
-                xml_BufferAppend xml_Buffer, vbNewLine, xml_BufferPosition, xml_BufferLength
-            End If
+		    xml_BufferAppend xml_Buffer, vbNewLine, xml_BufferPosition, xml_BufferLength ' Always put prolog on its own line.
             ConvertToXML = xml_BufferToString(xml_Buffer, xml_BufferPosition)
             
         ' Node (windows only)
