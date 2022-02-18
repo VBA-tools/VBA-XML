@@ -222,7 +222,7 @@ End Function
 ' @param {Integer|String} Whitespace "Pretty" print xml with given number of spaces per indentation (Integer) or given string
 ' @return {String}
 ''
-Public Function ConvertToXML(ByVal XmlValue As Variant, Optional ByVal Whitespace As Variant, Optional ByVal xml_CurrentIndentation As Long = 0) As String
+Public Function ConvertToXml(ByVal XmlValue As Variant, Optional ByVal Whitespace As Variant, Optional ByVal xml_CurrentIndentation As Long = 0) As String
     Dim xml_buffer As String
     Dim xml_BufferPosition As Long
     Dim xml_BufferLength As Long
