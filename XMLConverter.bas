@@ -282,7 +282,11 @@ Public Function ConvertToXml(ByVal XmlValue As Variant, Optional ByVal Whitespac
                 If XmlValue.Exists("attributes") Then
                     If Not XmlValue.Item("attributes") Is Nothing Then
                         For Each xml_Attribute In XmlValue.Item("attributes")
-                            xml_BufferAppend xml_buffer, " " & xml_Attribute.Item("name") & "=" & """" & xml_Attribute.Item("value") & """", xml_BufferPosition, xml_BufferLength
+                            xml_BufferAppend xml_Buffer, " ", xml_BufferPosition, xml_BufferLength
+                            xml_BufferAppend xml_Buffer, xml_Attribute.Item("name"), xml_BufferPosition, xml_BufferLength
+                            xml_BufferAppend xml_Buffer, "=""", xml_BufferPosition, xml_BufferLength
+                            xml_BufferAppend xml_Buffer, xml_Encode(xml_Attribute.Item("value"), """"), xml_BufferPosition, xml_BufferLength
+                            xml_BufferAppend xml_Buffer, """", xml_BufferPosition, xml_BufferLength
                         Next xml_Attribute
                     End If
                 End If
@@ -388,7 +392,11 @@ Public Function ConvertToXml(ByVal XmlValue As Variant, Optional ByVal Whitespac
             xml_BufferAppend xml_Buffer, XmlValue.nodeName, xml_BufferPosition, xml_BufferLength
             If Not XmlValue.Attributes Is Nothing Then
                 For Each xml_Attribute In XmlValue.Attributes
-                    xml_BufferAppend xml_Buffer, " " & xml_Attribute.Name & "=" & """" & xml_Attribute.Value & """", xml_BufferPosition, xml_BufferLength
+                    xml_BufferAppend xml_Buffer, " ", xml_BufferPosition, xml_BufferLength
+                    xml_BufferAppend xml_Buffer, xml_Attribute.Name, xml_BufferPosition, xml_BufferLength
+                    xml_BufferAppend xml_Buffer, "=""", xml_BufferPosition, xml_BufferLength
+                    xml_BufferAppend xml_Buffer, xml_Encode(xml_Attribute.Value, """"), xml_BufferPosition, xml_BufferLength
+                    xml_BufferAppend xml_Buffer, """", xml_BufferPosition, xml_BufferLength
                 Next xml_Attribute
             End If
             
@@ -414,10 +422,18 @@ Public Function ConvertToXml(ByVal XmlValue As Variant, Optional ByVal Whitespac
             
             ' Add node content.
             If XmlValue.ChildNodes.Length > 0 Then
-                If XmlValue.ChildNodes.Length = 1 And VBA.TypeName(XmlValue.ChildNodes.Item(0)) = "IXMLDOMText" Then
-                    ' Child node represents the node's text. treat as though it has no child nodes and just add text.
-                    xml_Converted = ConvertToXML(XmlValue.Text, Whitespace, xml_CurrentIndentation + 1)
-                    xml_BufferAppend xml_Buffer, xml_Converted, xml_BufferPosition, xml_BufferLength
+                ' Child node represents the node's text. treat as though it has no child nodes and just add text.
+                If XmlValue.ChildNodes.Length = 1 And _
+                    (VBA.TypeName(XmlValue.ChildNodes.Item(0)) = "IXMLDOMText" Or VBA.TypeName(XmlValue.ChildNodes.Item(0)) = "IXMLDOMCDATASection") Then
+                    Select Case VBA.TypeName(XmlValue.ChildNodes.Item(0))
+                    Case "IXMLDOMText"
+                        ' Pass value through converter to ensure characters are escaped & converted to text correctly.
+                        xml_Converted = ConvertToXml(XmlValue.Text, Whitespace, xml_CurrentIndentation + 1)
+                        xml_BufferAppend xml_Buffer, xml_Converted, xml_BufferPosition, xml_BufferLength
+                    Case "IXMLDOMCDATASection"
+                        ' CDATA node doesn't pass through converter, as it does not need escaping.
+                        xml_BufferAppend xml_Buffer, XmlValue.ChildNodes.Item(0).XML, xml_BufferPosition, xml_BufferLength
+                    End Select
                 Else
                     If xml_PrettyPrint Then
                         xml_BufferAppend xml_Buffer, vbNewLine, xml_BufferPosition, xml_BufferLength
@@ -946,7 +962,7 @@ Private Function xml_IsVoidNode(xml_Node As Variant) As Boolean
     End Select
 End Function
 
-Private Function xml_Encode(xml_Text As Variant) As String
+Private Function xml_Encode(xml_Text As Variant, Optional xml_QuoteChar As String = vbNullString) As String
     ' Variables.
     Dim xml_Index As Long
     Dim xml_Char As String
@@ -969,14 +985,14 @@ Private Function xml_Encode(xml_Text As Variant) As String
         ' From spec, <, >, &, ", ' characters must be modified.
         Select Case xml_AscCode
         Case 34
-            ' " -> 34 -> &quot;
-            xml_Char = "&quot;"
+            ' " -> 34 -> &quot; | Only encode if attribute quote character is a quotation mark.
+            If xml_QuoteChar = VBA.ChrW$(34) Then xml_Char = "&quot;"
         Case 38
             ' & -> 38 -> &amp;
             xml_Char = "&amp;"
         Case 39
-            ' ' -> 39 -> &apos;
-            xml_Char = "&apos;"
+            ' ' -> 39 -> &apos; | Only encode if attribute quote character is an apostrophe.
+            If xml_QuoteChar = VBA.ChrW$(39) Then xml_Char = "&apos;"
         Case 60
             ' < -> 60 -> &lt;
             xml_Char = "&lt;"
