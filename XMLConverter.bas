@@ -1,6 +1,6 @@
 Attribute VB_Name = "XMLConverter"
 ''
-' VBA-XML v0.2.0
+' VBA-XML v0.3.0
 ' (c) Tim Hall - https://github.com/VBA-tools/VBA-XML
 '
 ' XML Converter for VBA
