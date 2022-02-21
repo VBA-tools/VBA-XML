@@ -487,6 +487,10 @@ Public Function ConvertToXml(ByVal XmlValue As Variant, Optional ByVal Whitespac
             Next xml_ChildNode
             
             ConvertToXml = xml_BufferToString(xml_Buffer, xml_BufferPosition)
+        Else
+            Err.Raise 11001, "XMLConverter", "Error parsing XML:" & VBA.vbNewLine & _
+                        "`" & VBA.TypeName(XmlValue) & "` is a unrecognised XML object. ConvertToXml method will need " & _
+                        "to be updated to correctly convert this XML object."
         End If
     Case VBA.vbInteger, VBA.vbLong, VBA.vbSingle, VBA.vbDouble, VBA.vbCurrency, VBA.vbDecimal
         ' Number (use decimals for numbers)
